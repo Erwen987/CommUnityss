@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CommUnity Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/admin_dashboard.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar-container"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- CONTENT LOADER -->
+    <div id="content-loader">
+      <div class="loader-spinner"></div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div id="page-content">
+
+      <!-- HEADER INCLUDE -->
+      <div id="header-container"></div>
+
+      <!-- STATS -->
+      <section class="stats">
+
+        <div class="card stat">
+          <span>Reports</span>
+          <strong id="reportsCount">0</strong>
+        </div>
+
+        <div class="card stat">
+          <span>Requests</span>
+          <strong id="requestsCount">0</strong>
+        </div>
+
+        <div class="card stat">
+          <span>Users</span>
+          <strong id="usersCount">0</strong>
+        </div>
+
+        <div class="card stat">
+          <span>Active Users</span>
+          <strong id="activeUsersCount">0</strong>
+        </div>
+
+      </section>
+
+      <!-- CONTENT -->
+      <section class="content">
+
+        <div class="card chart">
+
+          <h3>Reports and Requests per Month</h3>
+
+          <div id="graphEmpty" class="empty-state">
+            No records yet.<br>
+            <small>Graph will appear once data is available.</small>
+          </div>
+
+          <div class="bars" id="graphBars" style="display:none">
+
+            <div class="bar-group">
+              <div class="bar requests"></div>
+              <div class="bar reports"></div>
+              <span>Jan</span>
+            </div>
+
+            <div class="bar-group">
+              <div class="bar requests"></div>
+              <div class="bar reports"></div>
+              <span>Feb</span>
+            </div>
+
+          </div>
+
+          <div class="legend">
+            <span><i class="req"></i> Requests</span>
+            <span><i class="rep"></i> Reports</span>
+          </div>
+
+        </div>
+
+        <div class="right-column">
+
+          <div class="card contributors">
+            <h3>Top Contributors</h3>
+            <ul id="contributorsList"></ul>
+          </div>
+
+          <div class="card activities">
+            <h3>Recent Activities</h3>
+            <ul id="activitiesList"></ul>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+
+/* LOAD SIDEBAR */
+async function loadSidebar(){
+
+  const res = await fetch("includes/sidebar.html")
+  const html = await res.text()
+
+  document.getElementById("sidebar-container").innerHTML = html
+
+  const links = document.querySelectorAll(".menu a")
+  const current = window.location.pathname.split("/").pop()
+
+  links.forEach(link=>{
+    if(link.getAttribute("href") === current){
+      link.classList.add("active")
+    }
+  })
+
+}
+
+/* LOAD HEADER */
+async function loadHeader(){
+
+  const res = await fetch("includes/header.html")
+  const html = await res.text()
+
+  document.getElementById("header-container").innerHTML = html
+
+  document.getElementById("page-title").textContent = "Welcome Admin 👋"
+  document.getElementById("page-description").textContent =
+  "Here’s a quick overview of your barangay"
+
+}
+
+/* DASHBOARD DATA */
+async function loadDashboard(){
+
+  try{
+
+    const res = await fetch("/api/dashboard")
+    const data = await res.json()
+
+    if(!data) return
+
+    document.getElementById("reportsCount").textContent = data.reports ?? 0
+    document.getElementById("requestsCount").textContent = data.requests ?? 0
+    document.getElementById("usersCount").textContent = data.users ?? 0
+    document.getElementById("activeUsersCount").textContent = data.activeUsers ?? 0
+
+  }catch(err){
+
+    console.error("Dashboard error:",err)
+
+  }
+
+}
+
+/* CONTENT LOADING */
+window.addEventListener("load",()=>{
+
+  const loader = document.getElementById("content-loader")
+  const content = document.getElementById("page-content")
+
+  setTimeout(()=>{
+    loader.style.display="none"
+    content.style.opacity="1"
+  },2000)
+
+})
+
+/* INIT */
+loadSidebar()
+loadHeader()
+loadDashboard()
+
+</script>
+
+</body>
+</html>

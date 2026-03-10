@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CommUnity | Barangay Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/dashboard.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<div id="sidebar-container"></div>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HEADER -->
+<div id="header-container"></div>
+
+
+<section class="grid">
+
+<!-- ======================
+LEFT COLUMN
+======================= -->
+<div class="left-column">
+
+<!-- ANNOUNCEMENT -->
+<div class="card announcement">
+
+<h3>Barangay Announcement</h3>
+
+<div class="announcement-box">
+
+<textarea
+id="announcementText"
+placeholder="Write an announcement for barangay residents..."
+></textarea>
+
+<label class="attach">
+📎
+<input id="announcementImage" type="file" accept="image/*" hidden>
+</label>
+
+</div>
+
+<button id="publishAnnouncement">
+Publish Announcement
+</button>
+
+</div>
+
+
+
+<!-- GRAPH -->
+<div class="card chart">
+
+<h3>Monthly Reports and Requests</h3>
+
+<div id="graphEmpty" class="empty-state">
+No available records yet.
+</div>
+
+<div class="bars" id="graphBars" style="display:none">
+
+<div class="group">
+<div class="bar requests"></div>
+<div class="bar reports"></div>
+<span>Oct</span>
+</div>
+
+<div class="group">
+<div class="bar requests"></div>
+<div class="bar reports"></div>
+<span>Nov</span>
+</div>
+
+<div class="group">
+<div class="bar requests"></div>
+<div class="bar reports"></div>
+<span>Dec</span>
+</div>
+
+<div class="group">
+<div class="bar requests"></div>
+<div class="bar reports"></div>
+<span>Jan</span>
+</div>
+
+<div class="group">
+<div class="bar requests"></div>
+<div class="bar reports"></div>
+<span>Feb</span>
+</div>
+
+<div class="group">
+<div class="bar requests"></div>
+<div class="bar reports"></div>
+<span>Mar</span>
+</div>
+
+</div>
+
+<div class="chart-line" id="graphLine" style="display:none">
+
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+
+</div>
+
+<div class="legend">
+<span><i class="req"></i>Requests</span>
+<span><i class="rep"></i>Reports</span>
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ======================
+RIGHT COLUMN
+======================= -->
+<div class="right-column">
+
+<!-- STATS -->
+<div class="stats">
+
+<div class="card stat">
+<span>Total Reports</span>
+<strong id="reportsCount">0</strong>
+</div>
+
+<div class="card stat">
+<span>Total Requests</span>
+<strong id="requestsCount">0</strong>
+</div>
+
+</div>
+
+
+
+<!-- LEADERBOARD -->
+<div class="card leaderboard">
+
+<h3>Top Community Contributors</h3>
+
+<ul id="leaderboardList">
+<li class="empty">
+No contributor records yet.
+</li>
+</ul>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+</div>
+
+
+
+<script>
+
+/* =========================
+LOAD SIDEBAR
+========================= */
+
+async function loadSidebar(){
+
+try{
+
+const res = await fetch("includes/official_sidebar.html")
+const html = await res.text()
+
+document.getElementById("sidebar-container").innerHTML = html
+
+const links = document.querySelectorAll(".menu a")
+const current = window.location.pathname.split("/").pop()
+
+links.forEach(link=>{
+if(link.getAttribute("href") === current){
+link.classList.add("active")
+}
+})
+
+}catch(e){
+console.error("Sidebar failed to load",e)
+}
+
+}
+
+
+
+/* =========================
+LOAD HEADER
+========================= */
+
+async function loadHeader(){
+
+try{
+
+const res = await fetch("includes/header.html")
+const html = await res.text()
+
+document.getElementById("header-container").innerHTML = html
+
+document.getElementById("page-title").textContent =
+"Hello, Barangay Officials 👋"
+
+document.getElementById("page-description").textContent =
+"Here’s what’s happening in your barangay today."
+
+}catch(e){
+console.error("Header failed to load",e)
+}
+
+}
+
+
+
+/* =========================
+PUBLISH ANNOUNCEMENT
+========================= */
+
+async function publishAnnouncement(){
+
+const message =
+document.getElementById("announcementText").value.trim()
+
+const image =
+document.getElementById("announcementImage").files[0]
+
+if(!message){
+alert("Announcement cannot be empty")
+return
+}
+
+const formData = new FormData()
+
+formData.append("message",message)
+
+if(image){
+formData.append("image",image)
+}
+
+try{
+
+const res = await fetch("/api/announcements",{
+method:"POST",
+body:formData
+})
+
+const data = await res.json()
+
+if(data.success){
+
+alert("Announcement published")
+
+document.getElementById("announcementText").value=""
+document.getElementById("announcementImage").value=""
+
+}else{
+
+alert("Failed to publish")
+
+}
+
+}catch(e){
+
+console.error(e)
+alert("Server error")
+
+}
+
+}
+
+
+
+/* =========================
+LOAD DASHBOARD GRAPH
+========================= */
+
+async function loadDashboardGraph(){
+
+const empty = document.getElementById("graphEmpty")
+const bars = document.getElementById("graphBars")
+const line = document.getElementById("graphLine")
+
+try{
+
+const res = await fetch("/api/dashboard-stats")
+const data = await res.json()
+
+if(!data || data.requests.length===0){
+
+empty.style.display="block"
+return
+
+}
+
+empty.style.display="none"
+bars.style.display="flex"
+line.style.display="block"
+
+const max = Math.max(...data.requests,...data.reports)
+
+document.getElementById("requestsCount").textContent =
+data.requests.reduce((a,b)=>a+b,0)
+
+document.getElementById("reportsCount").textContent =
+data.reports.reduce((a,b)=>a+b,0)
+
+const groups = document.querySelectorAll(".group")
+const points = document.querySelectorAll(".chart-line span")
+
+groups.forEach((g,i)=>{
+
+g.querySelector(".requests")
+.style.setProperty("--h",(data.requests[i]/max*100)+"%")
+
+g.querySelector(".reports")
+.style.setProperty("--h",(data.reports[i]/max*100)+"%")
+
+})
+
+points.forEach((p,i)=>{
+
+p.style.setProperty("--x",(i/(points.length-1)*100)+"%")
+p.style.setProperty("--y",(data.reports[i]/max*100)+"%")
+
+})
+
+}catch{
+
+empty.style.display="block"
+
+}
+
+}
+
+
+
+/* =========================
+LOAD LEADERBOARD
+========================= */
+
+async function loadLeaderboard(){
+
+const list = document.getElementById("leaderboardList")
+
+try{
+
+const res = await fetch("/api/leaderboard")
+const data = await res.json()
+
+if(!data || data.length===0){
+
+list.innerHTML =
+`<li class="empty">No contributor records yet.</li>`
+
+return
+}
+
+list.innerHTML=""
+
+data.forEach((u,index)=>{
+
+const li=document.createElement("li")
+
+li.innerHTML=
+`<span>${index+1}</span>${u.name}<b>${u.points}</b>`
+
+list.appendChild(li)
+
+})
+
+}catch{
+
+list.innerHTML =
+`<li class="empty">No contributor records yet.</li>`
+
+}
+
+}
+
+
+
+/* =========================
+INIT
+========================= */
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+loadSidebar()
+loadHeader()
+
+loadDashboardGraph()
+loadLeaderboard()
+
+document
+.getElementById("publishAnnouncement")
+.addEventListener("click",publishAnnouncement)
+
+})
+
+</script>
+
+</body>
+</html>

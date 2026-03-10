@@ -1,0 +1,162 @@
+/* =========================
+   RESET
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* =========================
+   BASE
+========================= */
+body {
+  font-family: "Poppins", system-ui, sans-serif;
+  min-height: 100vh;
+  color: #ffffff;
+
+  background-image: url("../images/login.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ======================
+   NAVBAR
+====================== */
+header {
+  padding-left: 40px;
+  padding-right: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+nav {
+  max-width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* LOGO */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: auto;
+}
+
+.logo img {
+  height: 96px;
+  width: auto;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 40px;
+  background: linear-gradient(135deg, #80c0ff, #698bab);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* NAV LINKS */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+}
+
+.nav-links a {
+  color: #e0e7ff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: #ffffff;
+}
+
+
+/* =========================
+   MAIN CONTAINER
+========================= */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+}
+
+/* =========================
+   CARD
+========================= */
+.card {
+  width: 100%;
+  max-width: 560px;
+  padding: 48px 44px;
+  text-align: center;
+
+  background: rgba(96, 165, 250, 0.35);
+  backdrop-filter: blur(12px);
+  border-radius: 26px;
+}
+
+.card h1 {
+  font-size: 32px;
+  margin-bottom: 14px;
+}
+
+.subtitle {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #e5e7eb;
+  margin-bottom: 36px;
+}
+
+/* =========================
+   OTP INPUTS
+========================= */
+.otp-group {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.otp-group input {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+/* =========================
+   BUTTON
+========================= */
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  border-radius: 30px;
+  border: none;
+
+  background: #1e3a5f;
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #162c49;
+}
